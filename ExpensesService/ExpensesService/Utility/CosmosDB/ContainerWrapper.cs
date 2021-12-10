@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -31,19 +32,32 @@ namespace ExpensesService.Utility.CosmosDB
             return items;
         }
 
-        public Task<ItemResponse<T>> ReadItemAsync<T>(string id, PartitionKey partitionKey, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
+        public async Task<T> ReadItemAsync<T>(string id, PartitionKey partitionKey, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
         {
-            return _container.ReadItemAsync<T>(id, partitionKey, requestOptions, cancellationToken);
+            try
+            {
+                var response = await _container.ReadItemAsync<T>(id, partitionKey, requestOptions, cancellationToken);
+                return response.Resource;
+            }
+            catch (CosmosException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new NotFoundException();
+            }
         }
 
-        public Task<ItemResponse<T>> CreateItemAsync<T>(T item, PartitionKey? partitionKey = null, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
+        public async Task CreateItemAsync<T>(T item, PartitionKey? partitionKey = null, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
         {
-            return _container.CreateItemAsync<T>(item, partitionKey, requestOptions, cancellationToken);
+            await _container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken);
         }
 
-        public Task UpsertItemAsync<T>(T item, PartitionKey? partitionKey, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
+        public async Task UpsertItemAsync<T>(T item, PartitionKey? partitionKey, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
         {
-            return _container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken);
+            await _container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken);
+        }
+
+        public async Task DeleteItemAsync<T>(string id, PartitionKey partitionKey, ItemRequestOptions requestOptions = null, CancellationToken cancellationToken = default)
+        {
+            await _container.DeleteItemStreamAsync(id, partitionKey, requestOptions, cancellationToken);
         }
     }
 }

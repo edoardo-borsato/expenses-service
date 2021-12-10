@@ -19,8 +19,4 @@
     <ProjectReference Include="..\ExpensesService\ExpensesService.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Unit\Repositories\" />
-  </ItemGroup>
-
 </Project>

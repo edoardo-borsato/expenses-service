@@ -6,8 +6,7 @@ namespace ExpensesService.Registries
     {
         public IFilter Create(FilterParameters parameters)
         {
-            // TODO: create IFilter implementation class and substitute
-            IFilter filter = null;
+            var filter = new Filter();
 
             if (parameters is not null)
             {

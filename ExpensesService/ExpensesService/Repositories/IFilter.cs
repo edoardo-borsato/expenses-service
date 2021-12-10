@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ExpensesService.Repositories.Entities;
 using PaymentMethod = ExpensesService.Models.PaymentMethod;
 
 namespace ExpensesService.Repositories
@@ -9,6 +10,6 @@ namespace ExpensesService.Repositories
         IFilter In(string date);
         IFilter Between(string startDate, string endDate);
         IFilter WithPaymentMethod(PaymentMethod paymentMethod);
-        IEnumerable<T> Apply<T>(IEnumerable<T> items);
+        IEnumerable<ExpenseEntity> Apply(IEnumerable<ExpenseEntity> items);
     }
 }

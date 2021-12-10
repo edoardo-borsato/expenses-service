@@ -39,7 +39,7 @@ namespace ExpensesService
                 .SetMinimumLevel(LogLevel.Debug));
 
             var cosmosDbSettings = Configuration.GetSection("CosmosDB").Get<CosmosDb>();
-            var cosmosClient = new CosmosClient(cosmosDbSettings.Account, cosmosDbSettings.Key);
+            var cosmosClient = new CosmosClient(cosmosDbSettings.AccountEndpoint, cosmosDbSettings.Key);
             var cosmosClientWrapper = new CosmosClientWrapper(cosmosClient);
             var expensesContainer = cosmosClientWrapper.GetContainer(cosmosDbSettings.DatabaseName, cosmosDbSettings.ContainerName);
             var watch = new Watch();
