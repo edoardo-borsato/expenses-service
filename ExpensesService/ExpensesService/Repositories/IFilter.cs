@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ExpensesService.Models;
+using PaymentMethod = ExpensesService.Models.PaymentMethod;
 
 namespace ExpensesService.Repositories
 {
@@ -9,10 +9,6 @@ namespace ExpensesService.Repositories
         IFilter In(string date);
         IFilter Between(string startDate, string endDate);
         IFilter WithPaymentMethod(PaymentMethod paymentMethod);
-        IEnumerable<ScanCondition> GetScanConditions();
-    }
-
-    public class ScanCondition
-    {
+        IEnumerable<T> Apply<T>(IEnumerable<T> items);
     }
 }
