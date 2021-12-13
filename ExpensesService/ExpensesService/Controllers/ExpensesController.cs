@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ExpensesService.Models;
 using ExpensesService.Registries;
 using ExpensesService.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace ExpensesService.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/expenses", Name = "expenses")]
     public class ExpensesController : ControllerBase
     {
@@ -39,6 +41,7 @@ namespace ExpensesService.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Expense>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(499, Type = typeof(Error))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Error))]
         public async Task<ActionResult> GetAllAsync([FromQuery] GetAllQueryParameters queryParameters, CancellationToken cancellationToken = default)
@@ -76,6 +79,7 @@ namespace ExpensesService.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Expense))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Error))]
         [ProducesResponseType(499, Type = typeof(Error))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Error))]
@@ -113,6 +117,7 @@ namespace ExpensesService.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Expense))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(499, Type = typeof(Error))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Error))]
         public async Task<ActionResult> CreateAsync([FromBody] ExpenseDetails expenseDetails, CancellationToken cancellationToken = default)
@@ -148,6 +153,7 @@ namespace ExpensesService.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Expense))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Error))]
         [ProducesResponseType(499, Type = typeof(Error))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Error))]
@@ -190,6 +196,7 @@ namespace ExpensesService.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(499, Type = typeof(Error))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(Error))]
         public async Task<ActionResult> DeleteAsync([FromRoute(Name = "id")] Guid id, CancellationToken cancellationToken = default)

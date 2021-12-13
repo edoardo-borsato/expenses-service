@@ -8,9 +8,11 @@ using Microsoft.OpenApi.Models;
 using ExpensesService.Controllers;
 using ExpensesService.Registries;
 using ExpensesService.Repositories;
+using ExpensesService.Services;
 using ExpensesService.Settings;
 using ExpensesService.Utility;
 using ExpensesService.Utility.CosmosDB;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Azure.Cosmos;
 
 namespace ExpensesService
@@ -38,6 +40,7 @@ namespace ExpensesService
                 .AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Information)
                 .SetMinimumLevel(LogLevel.Debug));
 
+            var authenticationSettings = Configuration.GetSection("Authentication").Get<Authentication>();
             var cosmosDbSettings = Configuration.GetSection("CosmosDB").Get<CosmosDb>();
             var cosmosClient = new CosmosClient(cosmosDbSettings.AccountEndpoint, cosmosDbSettings.Key);
             var cosmosClientWrapper = new CosmosClientWrapper(cosmosClient);
@@ -47,11 +50,37 @@ namespace ExpensesService
             var filterFactory = new FilterFactory();
             var validator = new QueryParametersValidator();
             var registry = new ExpensesRegistry(loggerFactory, repository, filterFactory, watch);
+            var userService = new UserService(authenticationSettings.Username, authenticationSettings.Password);
 
             services.AddControllers();
+            services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+            services.AddSingleton<IUserService>(_ => userService);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpensesTracker", Version = "v1" });
+                c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    In = ParameterLocation.Header,
+                    Description = "Basic Authorization header."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "basic"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
             services.AddSingleton(_ => loggerFactory);
             services.AddSingleton<IExpensesRegistry>(_ => registry);
@@ -71,7 +100,7 @@ namespace ExpensesService
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
