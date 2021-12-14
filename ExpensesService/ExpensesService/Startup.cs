@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -52,10 +53,9 @@ namespace ExpensesService
             var registry = new ExpensesRegistry(loggerFactory, repository, filterFactory, watch);
             var userService = new UserService(authenticationSettings.Username, authenticationSettings.Password);
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-            services.AddSingleton<IUserService>(_ => userService);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpensesService", Version = "v1" });
@@ -82,6 +82,7 @@ namespace ExpensesService
                     }
                 });
             });
+            services.AddSingleton<IUserService>(_ => userService);
             services.AddSingleton(_ => loggerFactory);
             services.AddSingleton<IExpensesRegistry>(_ => registry);
             services.AddSingleton<IQueryParametersValidator>(_ => validator);
@@ -93,9 +94,10 @@ namespace ExpensesService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpensesService v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpensesService v1"));
 
             app.UseHttpsRedirection();
 
