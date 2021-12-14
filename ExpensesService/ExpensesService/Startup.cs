@@ -58,7 +58,7 @@ namespace ExpensesService
             services.AddSingleton<IUserService>(_ => userService);
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpensesTracker", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpensesService", Version = "v1" });
                 c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -94,7 +94,7 @@ namespace ExpensesService
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpensesTracker v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpensesService v1"));
             }
 
             app.UseHttpsRedirection();
